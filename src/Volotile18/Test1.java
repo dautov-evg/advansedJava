@@ -1,4 +1,4 @@
-package VolotileMy;
+package Volotile18;
 
 import java.util.Scanner;
 

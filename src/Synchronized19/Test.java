@@ -1,4 +1,4 @@
-package MySynchronized;
+package Synchronized19;
 
 public class Test {
     private int counter;
