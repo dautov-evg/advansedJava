@@ -1,4 +1,4 @@
-package Synchronized19;
+package Synchronized20;
 
 public class Test {
     private int counter;
