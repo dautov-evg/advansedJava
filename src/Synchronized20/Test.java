@@ -1,45 +1,82 @@
 package Synchronized20;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 public class Test {
     private int counter;
-    public static void main(String[] args) throws InterruptedException {
-        Test test = new Test();
-        test.doWork();
+
+    public static void main(String[] args) {
+        new Worker().main();
+    }
+}
+
+class Worker {
+    Random random = new Random();
+
+    Object lock1 = new Object();
+    Object lock2 = new Object();
+
+    private List<Integer> list1 = new ArrayList<>();
+    private List<Integer> list2 = new ArrayList<>();
+
+    public void addToList1() {
+        synchronized (lock1) { //можно любой другой объект, lok1 для наглядности, например list1
+            try {
+                Thread.sleep(1); //для наглядной разницы во времени
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            list1.add(random.nextInt(100));
+        }
     }
 
-    /*
-    только один поток получает доступ к телу метода в одно время
-     */
-    public synchronized void increment() { //синхронизация происходит на объекте, у всех объектов есть монитор,
-        // монитор в один момент времени может принадлежать только одному потоку
-        counter++;
+    public void addToList2() {
+        synchronized (lock2) { //можно любой другой объект, lok2 для наглядности, например list1
+            try {
+                Thread.sleep(1); //для наглядной разницы во времени
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            list2.add(random.nextInt(100));
+        }
     }
-    public void doWork() throws InterruptedException {
+
+    public void work() {
+        for (int i=0;i<1000;i++) {
+            addToList1();
+            addToList2();
+        }
+    }
+
+    public void main() {
+        long before = System.currentTimeMillis();
         Thread thread1 = new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int i = 0; i<10000;i++)
-                    increment();
+                work();
             }
         });
-
         Thread thread2 = new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int i = 0; i<10000;i++)
-                    increment();
+                work();
             }
         });
-
         thread1.start();
         thread2.start();
 
-        /*
-        метод join() заставляет подождать main, пока не выполнятся thread1 и thread2
-         */
-        thread1.join();
-        thread2.join();
+        try {
+            thread1.join();
+            thread2.join();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
-        System.out.println(counter);
+        long after = System.currentTimeMillis();
+        System.out.println("Program took: " + (after - before) + " ms to run");
+        System.out.println("List1: " + list1.size() + list1);
+        System.out.println("List2: " + list2.size() + list2);
     }
 }
