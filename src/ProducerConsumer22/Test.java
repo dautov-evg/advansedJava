@@ -37,6 +37,7 @@ public class Test {
         thread2.join();
     }
 
+
     private static void producer() throws InterruptedException {
         Random random = new Random();
 
